@@ -80,6 +80,58 @@ và sẽ test failure path [failure mode].
 
 Những thứ **không build trong Day 06**:
 
-- 
-- 
-- 
+- Tích hợp API đặt lịch Vinmec thật + OTP
+- Chọn bác sĩ + slot giờ trong chat
+- Đa ngôn ngữ / đặt hẹn người nước ngoài
+- Học correction production VinBigdata
+
+---
+
+## Kết quả nhóm Team Corner — Vinmec (đã chốt)
+
+### Cụm evidence
+
+- Không biết chọn chuyên khoa sau khi mô tả triệu chứng
+- Handoff chat → link web mất context
+- Trả lời cơ sở/địa điểm mơ hồ không được làm rõ
+
+### Insight
+
+```text
+User đặt khám lần đầu qua chat VinmecCare không chỉ cần link đặt lịch.
+Họ cần hỗ trợ quyết định chuyên khoa an toàn và ít ma sát,
+vì self-use cho thấy bot không map symptom → specialty trước khi chuyển form web.
+```
+
+### Opportunity
+
+```text
+Cơ hội là dùng AI để augment: hỏi làm rõ + gợi ý 2–3 chuyên khoa có lý do,
+giúp user chọn khoa trước khi sang form/link,
+trong khi vẫn kiểm soát red flag và gợi ý sai bằng low-confidence + hotline.
+```
+
+### Build slice — checklist
+
+| Câu hỏi | Đạt? |
+|---|---|
+| User cụ thể? | Có — người lần đầu, mô tả triệu chứng tiếng Việt |
+| Task hẹp? | Có — symptom → gợi ý khoa + confirm (không OTP/API) |
+| AI decision rõ? | Có — rank/gợi ý chuyên khoa + confidence |
+| Failure path? | Có — sai khoa + red flag |
+| Evidence? | Có self-use + form web; review bổ sung sáng Day 06 |
+
+### Quyết định scope
+
+**Giữ** domain Vinmec · **Giảm scope** bỏ đặt lịch thật/API · **Augmentation** vì rủi ro y tế.
+
+### Câu chốt cuối
+
+```text
+Dựa trên screenshot chat + form đăng ký khám Vinmec,
+nhóm sẽ build prototype chat "symptom → gợi ý 2–3 chuyên khoa → xác nhận → summary",
+cho người bệnh lần đầu đặt khám qua chat,
+để giải quyết pain không biết chọn khoa sau handoff link,
+bằng cách AI augment gợi ý chuyên khoa,
+và sẽ test failure path gợi ý khoa sai + red flag đau bụng nặng.
+```

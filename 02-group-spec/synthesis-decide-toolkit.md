@@ -80,6 +80,64 @@ và sẽ test failure path [failure mode].
 
 Những thứ **không build trong Day 06**:
 
-- 
-- 
-- 
+- API đặt lịch Vinmec thật + OTP production
+- VinBigdata / chat production
+- Lưu PII vào vector DB / fine-tune từ transcript
+- Đa ngôn ngữ, bảo hiểm, thanh toán
+
+---
+
+## Kết quả nhóm Team Corner — Vinmec (đã chốt — cập nhật)
+
+### Cụm evidence
+
+- Symptom không map được khoa/BS trong chat thật
+- Handoff link — user điền lại form từ đầu
+- Form Vinmec tách field đặt lịch vs thông tin khách hàng → mô hình 2 phase phù hợp
+
+### Insight
+
+```text
+User cần agent đặt lịch từ triệu chứng, không chỉ link.
+Họ cần form gần hoàn tất sau chat và không muốn đưa SĐT/họ tên vào LLM,
+vì chat thật không nối symptom → booking và form thật đã tách PII.
+```
+
+### Opportunity
+
+```text
+AI agent trong chat: LLM + mock (cơ sở, khoa, bác sĩ, slot) từ triệu chứng + tuổi + khu vực.
+Handoff bookingDraft → form pre-fill (không LLM).
+User chỉ nhập PII trên form và submit — dữ liệu cá nhân không qua prompt.
+```
+
+### Build slice — checklist
+
+| Câu hỏi | Đạt? |
+|---|---|
+| User cụ thể? | Có — lần đầu đặt khám, mô tả triệu chứng |
+| Task hẹp? | Có — agent + pre-fill + PII form (mock, 1 ngày) |
+| AI decision rõ? | Có — map symptom → 2–3 khoa; chọn BS/slot từ mock |
+| Failure path? | Có — sai khoa, red flag, PII trong chat bị từ chối |
+| Evidence? | Có screenshot Vinmec + form web |
+
+### Quyết định scope
+
+**Giữ** pain Vinmec · **Mở rộng có kiểm soát:** chat agent + form (vẫn mock) · **Augmentation + privacy:** LLM không nhận PII · **Submit** ngoài LLM.
+
+### Kiến trúc 2 phase (tóm tắt)
+
+| Phase | Có LLM? | Dữ liệu |
+|-------|---------|---------|
+| A — Chat agent | Có | Triệu chứng, tuổi, cơ sở; mock khoa/BS/slot |
+| B — Form đặt lịch | **Không** | Pre-fill từ `bookingDraft`; user nhập PII; submit mock |
+
+### Câu chốt cuối
+
+```text
+Dựa trên evidence VinmecCare + form đăng ký khám,
+nhóm sẽ build chatbot AI agent (symptom → gợi ý khoa/BS từ mock data),
+handoff sang form đã fill thông tin đặt lịch,
+user chỉ điền thông tin cá nhân và submit không qua LLM,
+và test red flag + gợi ý khoa sai + từ chối PII trong chat.
+```

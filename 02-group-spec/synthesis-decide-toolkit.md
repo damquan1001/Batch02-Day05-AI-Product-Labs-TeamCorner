@@ -94,21 +94,27 @@ Những thứ **không build trong Day 06**:
 - Symptom không map được khoa/BS trong chat thật
 - Handoff link — user điền lại form từ đầu
 - Form Vinmec tách field đặt lịch vs thông tin khách hàng → mô hình 2 phase phù hợp
+- Chatbot hiện vẫn đẩy user sang form/gọi tư vấn viên thủ công
+- User có thể nhập PII vào chat nếu không có guard chủ động
 
 ### Insight
 
 ```text
 User cần agent đặt lịch từ triệu chứng, không chỉ link.
-Họ cần form gần hoàn tất sau chat và không muốn đưa SĐT/họ tên vào LLM,
-vì chat thật không nối symptom → booking và form thật đã tách PII.
+Họ cần form gần hoàn tất sau chat và không muốn đưa SĐT/email/CCCD/họ tên vào LLM,
+vì chat thật không nối symptom → booking, form thật đã tách PII,
+và luồng hiện tại vẫn phụ thuộc vào form/call tư vấn thủ công.
 ```
 
 ### Opportunity
 
 ```text
-AI agent trong chat: LLM + mock (cơ sở, khoa, bác sĩ, slot) từ triệu chứng + tuổi + khu vực.
-Handoff bookingDraft → form pre-fill (không LLM).
-User chỉ nhập PII trên form và submit — dữ liệu cá nhân không qua prompt.
+AI agent trong chat: Gemini 3.1 Flash Lite + mock tools
+(cơ sở, khoa, bác sĩ, slot) từ triệu chứng + tuổi + khu vực.
+Handoff bookingDraft/callbackDraft → form pre-fill (không LLM).
+User chỉ nhập PII trên form và submit vào mock storage — dữ liệu cá nhân không qua prompt.
+Tab "Lịch đã đặt" cho xem lại ticket và edit thông tin người dùng ngoài LLM.
+Frontend regex chặn SĐT/email/CCCD trước khi tin nhắn bay lên server/LLM.
 ```
 
 ### Build slice — checklist
@@ -118,26 +124,30 @@ User chỉ nhập PII trên form và submit — dữ liệu cá nhân không qua
 | User cụ thể? | Có — lần đầu đặt khám, mô tả triệu chứng |
 | Task hẹp? | Có — agent + pre-fill + PII form (mock, 1 ngày) |
 | AI decision rõ? | Có — map symptom → 2–3 khoa; chọn BS/slot từ mock |
-| Failure path? | Có — sai khoa, red flag, PII trong chat bị từ chối |
+| Failure path? | Có — happy path, user override khoa, escalation hotline/callback, PII trong chat bị chặn |
 | Evidence? | Có screenshot Vinmec + form web |
 
 ### Quyết định scope
 
-**Giữ** pain Vinmec · **Mở rộng có kiểm soát:** chat agent + form (vẫn mock) · **Augmentation + privacy:** LLM không nhận PII · **Submit** ngoài LLM.
+**Giữ** pain Vinmec · **Mở rộng có kiểm soát:** chat agent + form (vẫn mock) · **Augmentation + privacy:** LLM không nhận PII · **Submit** ngoài LLM · **Ticket/session:** lưu lịch đã đặt trong mock storage, có edit thông tin người dùng.
 
 ### Kiến trúc 2 phase (tóm tắt)
 
 | Phase | Có LLM? | Dữ liệu |
 |-------|---------|---------|
+| Tầng 2 — Frontend guard | Không | Regex chặn SĐT/email/CCCD trước server/LLM |
+| Tầng 4 — System prompt | Có | Bỏ qua PII nếu user cố nhập; không nhắc lại |
 | A — Chat agent | Có | Triệu chứng, tuổi, cơ sở; mock khoa/BS/slot |
-| B — Form đặt lịch | **Không** | Pre-fill từ `bookingDraft`; user nhập PII; submit mock |
+| B — Form đặt lịch/callback | **Không** | Pre-fill từ `bookingDraft`; user nhập PII; submit mock; trả ticket ID; tab lịch đã đặt có edit thông tin |
 
 ### Câu chốt cuối
 
 ```text
 Dựa trên evidence VinmecCare + form đăng ký khám,
-nhóm sẽ build chatbot AI agent (symptom → gợi ý khoa/BS từ mock data),
-handoff sang form đã fill thông tin đặt lịch,
+nhóm sẽ build chatbot AI agent dùng Gemini 3.1 Flash Lite
+(symptom → hỏi thêm → gợi ý khoa/BS/slot từ mock tools),
+handoff sang form đã fill thông tin đặt lịch/callback,
 user chỉ điền thông tin cá nhân và submit không qua LLM,
-và test red flag + gợi ý khoa sai + từ chối PII trong chat.
+nhận ticket ID, xem lại và edit thông tin ở tab lịch đã đặt,
+và test happy path + override khoa + escalation + regex chặn PII trong chat.
 ```

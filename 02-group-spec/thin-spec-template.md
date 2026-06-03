@@ -44,6 +44,8 @@ cho user chọn slot hoặc tự override khoa,
 rồi mở form đặt lịch đã giữ context trong session hiện tại.
 User chỉ nhập PII trong form riêng; form submit thẳng tới mock storage demo,
 trả `ticketId` và có tab xem lại các lịch đã đặt.
+Nếu user không ưng khoa AI gợi ý, form vẫn cho đổi chuyên khoa trước khi submit;
+slot/bác sĩ mock sẽ refresh theo khoa mới.
 Trong tab này, user có thể bấm "Edit thông tin" để sửa thông tin cá nhân
 hoặc thông tin liên hệ mà không đưa dữ liệu đó quay lại LLM.
 Prototype xử lý failure mode bằng low-confidence, `Pending_Doctor_Review`,
@@ -57,7 +59,7 @@ hotline/tư vấn viên gọi lại, regex chặn PII ở chat, và system promp
 | 1 — Lấy triệu chứng hiện tại | User nhập triệu chứng. AI hỏi thêm tối đa 2 câu về thời điểm, mức độ, vị trí đau, triệu chứng đi kèm. | `symptomSummary`, `confidence`, `redFlagRisk` |
 | 2 — Gọi tool | AI gọi `suggestSpecialty(symptomSummary)` và `getAvailableSlots(specialty, facility?)`. UI hiển thị khoa + lý do ngắn + slot trống để user chọn. | `bookingDraft` có khoa, cơ sở, slot, lý do khám |
 | 3 — Fallbacks | Nếu user override khoa, AI nhượng bộ và có thể đánh dấu `Pending_Doctor_Review`; nếu triệu chứng quá rối/hoang mang hoặc có red flag, chuyển hotline/callback. | `bookingDraft` hoặc `callbackDraft` |
-| 4 — Form/session | Khi chốt A/B/C, frontend gọi `renderBookingForm(draft)`. Form lưu session hiện tại, submit mock storage, trả ticket ID. | `ticketId`, tab "Lịch đã đặt" |
+| 4 — Form/session | Khi chốt A/B/C, frontend gọi `renderBookingForm(draft)`. Form cho sửa chuyên khoa/slot trước submit; nếu đổi khoa thì refresh slot/bác sĩ mock. | `ticketId`, tab "Lịch đã đặt" |
 | 5 — Review/edit booking | Tab "Lịch đã đặt" hiển thị ticket đã submit. User bấm "Edit thông tin" để sửa PII/contact trên form riêng. | ticket đã cập nhật, không gọi LLM |
 
 ### Kiến trúc prototype (ranh giới dữ liệu)
@@ -90,6 +92,7 @@ hotline/tư vấn viên gọi lại, regex chặn PII ở chat, và system promp
 ┌──────────────────────────▼──────────────────────────────────┐
 │  PHASE C — Form đặt lịch (KHÔNG LLM)                        │
 │  Pre-filled: cơ sở, khoa, thời gian, lý do, trạng thái.     │
+│  Editable trước submit: khoa, slot, thông tin người dùng.    │
 │  User nhập: họ tên, SĐT, ngày sinh, giới tính, email.       │
 │  Save session + submit mock storage → ticketId + tab lịch    │
 │  đã đặt; tab có nút Edit thông tin cho từng ticket.          │
@@ -142,7 +145,7 @@ thông tin cá nhân sẽ được nhập ở form đặt lịch riêng."
 
 ### AI decision (một việc cụ thể)
 
-Map **triệu chứng + tuổi + cơ sở** → rank **2–3 chuyên khoa** (có `reason` ngắn); user **chọn hoặc override** khoa → agent lấy slot từ mock. Nếu override có dấu hiệu sai/rủi ro, set status `Pending_Doctor_Review` để bác sĩ triage xem lại lịch sử chat ẩn danh và tự chốt khoa trên màn hình nội bộ mock.
+Map **triệu chứng + tuổi + cơ sở** → rank **2–3 chuyên khoa** (có `reason` ngắn); user **chọn hoặc override** khoa trong chat/form → agent lấy slot từ mock. Nếu override có dấu hiệu sai/rủi ro, set status `Pending_Doctor_Review` để bác sĩ triage xem lại lịch sử chat ẩn danh và tự chốt khoa trên màn hình nội bộ mock.
 
 ## 5. Auto/Aug decision
 
@@ -158,7 +161,7 @@ Map **triệu chứng + tuổi + cơ sở** → rank **2–3 chuyên khoa** (có
 | Path | Prototype phải thể hiện gì? |
 |---|---|
 | A — Happy path | AI nói: "Dựa trên triệu chứng, bạn nên khám Khoa Tim Mạch. Hiện có lịch trống lúc 14:00 chiều nay." User đồng ý → mở form pre-fill → user nhập PII → submit mock → ticket ID |
-| B — User/Doctor override | User nói: "Không, tôi muốn khám Tiêu Hóa cơ." AI nhượng bộ: "Vâng, tôi sẽ chuyển bạn sang Khoa Tiêu Hóa." Nếu nghi ngờ, set `Pending_Doctor_Review` và lưu lịch sử chat ẩn danh để bác sĩ triage xem lại |
+| B — User/Doctor override | User nói trong chat hoặc đổi trên form: "Không, tôi muốn khám Tiêu Hóa cơ." AI/UI nhượng bộ, refresh slot theo Khoa Tiêu Hóa. Nếu nghi ngờ, set `Pending_Doctor_Review` và lưu lịch sử chat ẩn danh để bác sĩ triage xem lại |
 | C — Escalation | Triệu chứng quá lung tung/hoang mang hoặc có red flag → không ép chọn khoa; hiện hotline hoặc form callback để tư vấn viên gọi sớm nhất → ticket ID dạng `CALLBACK-*` |
 | PII correction | User nhập SĐT/email/CCCD trong chat → frontend chặn regex trước server/LLM; nếu lọt qua, system prompt bỏ qua và nhắc nhập ở form riêng |
 
@@ -188,7 +191,7 @@ Owner test: Trần Nguyễn Đăng Khoa (2A202600922).
 
 1. Nhập triệu chứng (không nhập họ tên/SĐT trong chat).
 2. Agent hỏi thêm 1–2 câu, gợi ý khoa + slot trống.
-3. Chọn happy path hoặc override khoa → form mở với draft đã có khoa/slot/trạng thái.
+3. Chọn happy path hoặc override khoa → form mở với draft đã có khoa/slot/trạng thái; có thể đổi chuyên khoa ngay trên form nếu không ưng.
 4. Điền PII trên form → submit → nhận ticket ID → lưu mock booking.
 5. Mở tab "Lịch đã đặt" → bấm "Edit thông tin" → sửa SĐT/email → lưu lại ticket.
 6. Thử PII trong chat để thấy regex chặn; thử red flag để thấy hotline/callback.

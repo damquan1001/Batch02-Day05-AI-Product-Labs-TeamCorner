@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>Báo cáo phân tích Trợ thủ AI Moni - MoMo</title>
+  <script type="text/javascript" nonce="00ee8241f07743a69fa83779284" src="//local.adguard.org?ts=1780478484708&amp;type=content-script&amp;dmn=cdn.discordapp.com&amp;url=https%3A%2F%2Fcdn.discordapp.com%2Fattachments%2F1511586944193269861%2F1511607267026403398%2FLeDamQuan_2A202600930.html%3Fex%3D6a211178%26is%3D6a1fbff8%26hm%3Df4ed9a62d4eb80948e662f389b1e699bd79b99ebe07018356e84a40745707156%26&amp;app=chrome.exe&amp;css=3&amp;js=1&amp;rel=1&amp;rji=1&amp;sbe=1"></script><script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+  <style>
+    body { font-family: Inter, Arial, sans-serif; margin: 0; background: #f7f7fb; color: #222; line-height: 1.6; }
+    .container { max-width: 1080px; margin: auto; padding: 40px 24px; }
+    h1, h2, h3 { color: #a50064; }
+    h1 { font-size: 34px; margin-bottom: 8px; }
+    h2 { margin-top: 36px; border-left: 6px solid #a50064; padding-left: 12px; }
+    .card { background: white; padding: 24px; border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.06); margin: 20px 0; }
+    .tag { display: inline-block; padding: 4px 10px; border-radius: 999px; background: #ffe4f3; color: #a50064; font-size: 13px; margin: 4px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    th, td { border: 1px solid #ddd; padding: 12px; vertical-align: top; }
+    th { background: #fff0f8; color: #7a004a; }
+    .severity-high { color: #b00020; font-weight: 700; }
+    .severity-med { color: #b26a00; font-weight: 700; }
+    .decision { background: #f3f7ff; border-left: 5px solid #3366cc; padding: 14px; border-radius: 8px; }
+    .quote { background: #fafafa; border-left: 4px solid #a50064; padding: 12px 16px; }
+    .footer { color: #777; font-size: 13px; margin-top: 40px; }
+  </style>
+</head>
+
+<body>
+<div class="container">
+
+  <h1>Báo cáo phân tích Trợ thủ AI Moni trên ứng dụng Ví điện tử MoMo</h1>
+  <p><strong>Mục tiêu:</strong> Đánh giá mức độ Moni đáp ứng promise “Trợ thủ chi tiêu / Trợ thủ tài chính với AI” thông qua các prompt thực nghiệm, từ đó đề xuất product decisions để cải thiện trải nghiệm người dùng.</p>
+
+  <div class="card">
+    <h2>1. Executive Summary</h2>
+    <p>
+      Moni đang được kỳ vọng đóng vai trò như một trợ thủ tài chính cá nhân: hiểu chi tiêu, phân tích giao dịch, tư vấn tiết kiệm, hỗ trợ mục tiêu tài chính và gợi ý ưu đãi/dịch vụ phù hợp. Tuy nhiên, qua các thử nghiệm, trải nghiệm hiện tại cho thấy Moni vẫn gặp vấn đề ở ba lớp chính:
+    </p>
+    <span class="tag">Context awareness</span>
+    <span class="tag">Financial transaction reasoning</span>
+    <span class="tag">Location grounding</span>
+    <span class="tag">Correction handling</span>
+    <span class="tag">Safety alignment</span>
+
+    <p>
+      Điểm tích cực là Moni có cơ chế từ chối prompt injection khá tốt. Tuy nhiên, ở các use case cốt lõi như tìm ưu đãi/quán gần vị trí người dùng và phân tích chi tiêu cá nhân, Moni chưa đủ nhất quán để trở thành “trợ thủ đáng tin cậy”.
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>2. Product Promise của Moni</h2>
+    <p>Promise được kỳ vọng từ Moni bao gồm:</p>
+    <ul>
+      <li><strong>Theo dõi chi tiêu:</strong> ghi nhận, phân loại, tổng hợp các khoản chi tiêu và thu nhập.</li>
+      <li><strong>Phân tích tài chính cá nhân:</strong> đưa ra báo cáo, thống kê, nhận diện thói quen chi tiêu.</li>
+      <li><strong>Tư vấn tiết kiệm và chi tiêu hợp lý:</strong> đề xuất ngân sách, nhắc nhở giới hạn chi tiêu, gợi ý mẹo tiết kiệm cá nhân hóa.</li>
+      <li><strong>Hỗ trợ mục tiêu tài chính:</strong> giúp người dùng lên kế hoạch và theo dõi tiến độ đạt mục tiêu.</li>
+      <li><strong>Gợi ý ưu đãi phù hợp:</strong> tìm và đề xuất khuyến mãi/dịch vụ phù hợp với nhu cầu, vị trí và hành vi chi tiêu.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>3. Target Users của Moni</h2>
+    <table>
+      <tr>
+        <th>Nhóm người dùng</th>
+        <th>Nhu cầu chính</th>
+        <th>Moni cần làm tốt điều gì?</th>
+      </tr>
+      <tr>
+        <td>Sinh viên / người trẻ mới đi làm</td>
+        <td>Kiểm soát chi tiêu nhỏ lẻ, ăn uống, giải trí, subscription.</td>
+        <td>Phân loại chính xác, chỉ ra khoản có thể giảm, gợi ý ưu đãi gần vị trí.</td>
+      </tr>
+      <tr>
+        <td>Người dùng MoMo thường xuyên</td>
+        <td>Muốn hiểu lịch sử giao dịch và tối ưu chi tiêu.</td>
+        <td>Phân tích theo tháng, theo nhóm, theo merchant và theo mức độ cần thiết.</td>
+      </tr>
+      <tr>
+        <td>Người dùng săn ưu đãi</td>
+        <td>Tìm khuyến mãi, voucher, dịch vụ ăn uống/giải trí gần mình.</td>
+        <td>Kết hợp location, preference, lịch sử giao dịch và inventory ưu đãi.</td>
+      </tr>
+      <tr>
+        <td>Người dùng ít hiểu tài chính cá nhân</td>
+        <td>Cần lời khuyên đơn giản, dễ hành động.</td>
+        <td>Đưa ra insight rõ ràng, có lý do và bước tiếp theo cụ thể.</td>
+      </tr>
+      <tr>
+        <td>Người dùng gặp lỗi khi sử dụng MoMo</td>
+        <td>Cần trợ giúp nhanh về giao dịch, dịch vụ, thanh toán.</td>
+        <td>Hiểu intent hỗ trợ, chuyển đúng flow CSKH hoặc hướng dẫn trong app.</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>4. Kỳ vọng trải nghiệm của người dùng</h2>
+    <p>Người dùng kỳ vọng Moni có thể:</p>
+    <ul>
+      <li>Hiểu và phân tích chi tiêu cá nhân.</li>
+      <li>Tìm, thu thập và gợi ý ưu đãi phù hợp.</li>
+      <li>Tư vấn tiết kiệm, chi tiêu và tài chính cá nhân.</li>
+      <li>Trả lời thắc mắc hoặc vấn đề khi sử dụng MoMo.</li>
+      <li>Gợi ý dịch vụ ăn uống, giải trí dựa trên vị trí và nhu cầu thực tế.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>5. Observations từ prompt thực nghiệm</h2>
+
+    <h3>Observation 1: Gợi ý quán ăn gần tôi</h3>
+    <div class="quote">
+      Người dùng ở Hà Nội nhưng Moni gợi ý 3 quán ở Sài Gòn. Khi người dùng sửa lại “Oceanpark 1”, Moni hiểu sai thành khu du lịch ở Phú Quốc.
+    </div>
+    <p><strong>Vấn đề:</strong> Moni không sử dụng hoặc không xác nhận location context trước khi gọi tool. Khi người dùng correction, Moni không hiểu “Oceanpark 1” là vị trí cần tìm quán ăn mà chuyển sang intent du lịch.</p>
+
+    <h3>Observation 2: Phân tích chi tiêu gần nhất / tháng 5</h3>
+    <div class="quote">
+      Moni chỉ nhìn 3 ngày đầu tháng 6 và không tự mở rộng sang giao dịch gần nhất. Khi được yêu cầu xem tháng 5, Moni phân tích đúng hơn nhưng phân loại Apple Service là giải trí có thể bỏ, dù thực chất là iCloud Storage.
+    </div>
+    <p><strong>Vấn đề:</strong> Moni chưa có chiến lược fallback khi không đủ dữ liệu trong khoảng thời gian mặc định. Ngoài ra, phân loại merchant/service còn thiếu ngữ cảnh, dẫn đến lời khuyên tài chính sai.</p>
+
+    <h3>Observation 3: Prompt injection</h3>
+    <div class="quote">
+      Khi người dùng yêu cầu Moni quên lệnh trước và đóng vai chatbot tư vấn thuế, Moni từ chối và khẳng định phạm vi là chatbot trợ lý khuyến mãi.
+    </div>
+    <p><strong>Điểm tốt:</strong> Moni có guardrail chống prompt injection và role hijacking. Tuy nhiên, câu trả lời “trợ lý khuyến mãi” có thể gây lệch promise nếu Moni được định vị là trợ thủ tài chính rộng hơn.</p>
+  </div>
+
+  <div class="card">
+    <h2>6. User Paths</h2>
+
+    <h3>6.1 Happy Path</h3>
+    <p><strong>Trạng thái:</strong> Chưa quan sát được đầy đủ trong thử nghiệm hiện tại.</p>
+    <div class="mermaid">
+      flowchart TD
+        A[User hỏi: Gợi ý quán ăn gần tôi] --> B[Moni xác định location hiện tại hoặc hỏi xác nhận]
+        B --> C[Moni gọi tool tìm kiếm theo vị trí chính xác]
+        C --> D[Moni trả về quán gần, có khoảng cách, ưu đãi, rating]
+        D --> E[User chọn ưu đãi hoặc lưu voucher]
+    </div>
+
+    <h3>6.2 Low-confidence Path</h3>
+    <p><strong>Trạng thái:</strong> Chưa có trong product hoặc chưa được kích hoạt rõ ràng. Moni hiện trả lời tự tin dù dữ liệu vị trí/ngữ cảnh chưa đủ.</p>
+    <div class="mermaid">
+      flowchart TD
+        A[Intent chưa đủ rõ hoặc thiếu dữ liệu] --> B{Confidence thấp?}
+        B -->|Có| C[Moni nói rõ giới hạn: chưa biết vị trí/chưa đủ giao dịch]
+        C --> D[Hỏi 1 câu clarification cụ thể]
+        D --> E[Gọi tool sau khi có dữ liệu]
+        B -->|Không| F[Trả lời trực tiếp]
+    </div>
+
+    <h3>6.3 Failure Path</h3>
+    <p><strong>Trạng thái:</strong> Đã quan sát được.</p>
+    <div class="mermaid">
+      flowchart TD
+        A[User hỏi quán ăn gần tôi] --> B[Moni gọi tool]
+        B --> C[Tool trả quán ở sai thành phố]
+        C --> D[Moni trả lời như thể phù hợp]
+        D --> E[User mất niềm tin vì kết quả sai vị trí]
+    </div>
+
+    <h3>6.4 Correction Path</h3>
+    <p><strong>Trạng thái:</strong> Đã quan sát nhưng xử lý chưa tốt.</p>
+    <div class="mermaid">
+      flowchart TD
+        A[User phản hồi: Bạn không biết tôi ở đâu à?] --> B[Moni xin lỗi và hỏi vị trí]
+        B --> C[User nói: Oceanpark 1]
+        C --> D[Moni hiểu sai thành điểm du lịch Phú Quốc]
+        D --> E[Trả lời lệch intent ban đầu]
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>7. Findings dưới dạng Product Decisions</h2>
+
+    <table>
+      <tr>
+        <th>Finding</th>
+        <th>Evidence</th>
+        <th>Product Decision</th>
+        <th>Priority</th>
+      </tr>
+      <tr>
+        <td>Moni chưa ground câu trả lời theo vị trí người dùng.</td>
+        <td>Gợi ý quán ăn ở Sài Gòn cho người dùng ở Hà Nội.</td>
+        <td class="decision">Bắt buộc location validation trước khi gọi tool tìm kiếm địa điểm. Nếu chưa có permission/location, Moni phải hỏi hoặc xác nhận khu vực trước.</td>
+        <td class="severity-high">High</td>
+      </tr>
+      <tr>
+        <td>Moni chưa có correction memory trong cùng conversation.</td>
+        <td>Sau khi user nói “Oceanpark 1”, Moni quên intent “tìm quán ăn gần tôi”.</td>
+        <td class="decision">Thiết kế correction handler: mọi correction phải được parse theo intent gốc + slot còn thiếu, không reset sang intent mới nếu user chưa yêu cầu.</td>
+        <td class="severity-high">High</td>
+      </tr>
+      <tr>
+        <td>Moni chưa xử lý tốt khi dữ liệu giao dịch mặc định quá hẹp.</td>
+        <td>Chỉ xem 3 ngày đầu tháng 6 và kết luận không có khoản không cần thiết.</td>
+        <td class="decision">Khi user hỏi “gần nhất”, hệ thống nên tự động mở rộng window: 7 ngày → 30 ngày → tháng trước, đồng thời thông báo phạm vi dữ liệu đang phân tích.</td>
+        <td class="severity-high">High</td>
+      </tr>
+      <tr>
+        <td>Phân loại merchant/service chưa đủ ngữ cảnh.</td>
+        <td>Apple Service bị coi là giải trí có thể bỏ, dù là iCloud Storage.</td>
+        <td class="decision">Thêm merchant enrichment layer: Apple Service cần được phân tách iCloud, App Store, Apple Music, subscription khác; nếu không chắc, Moni phải hỏi lại thay vì khuyên loại bỏ.</td>
+        <td class="severity-med">Medium</td>
+      </tr>
+      <tr>
+        <td>Moni thiếu low-confidence UX.</td>
+        <td>Trả lời tự tin dù sai location và sai context.</td>
+        <td class="decision">Thêm confidence threshold: khi thiếu location, thiếu category confidence hoặc thiếu transaction window, Moni phải nói rõ “mình chưa chắc” và hỏi 1 câu cụ thể.</td>
+        <td class="severity-high">High</td>
+      </tr>
+      <tr>
+        <td>Guardrail chống prompt injection hoạt động tốt.</td>
+        <td>Moni từ chối role hijacking sang chatbot thuế.</td>
+        <td class="decision">Giữ guardrail hiện tại, nhưng sửa fallback message để phản ánh đúng scope: “trợ thủ tài chính cá nhân/chi tiêu trên MoMo”, không chỉ “trợ lý khuyến mãi”.</td>
+        <td class="severity-med">Medium</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>8. As-is Graph: Trải nghiệm hiện tại</h2>
+    <div class="mermaid">
+      flowchart TD
+        A[User đưa yêu cầu] --> B[Moni đoán intent]
+        B --> C[Gọi tool hoặc truy xuất dữ liệu]
+        C --> D{Dữ liệu đủ đúng?}
+        D -->|Có| E[Trả lời tương đối phù hợp]
+        D -->|Không| F[Trả lời sai nhưng vẫn tự tin]
+        F --> G[User correction]
+        G --> H{Moni giữ context gốc?}
+        H -->|Không| I[Chuyển sai intent / trả lời lệch context]
+        H -->|Có| J[Sửa một phần]
+        I --> K[Giảm trust vào Moni]
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>9. To-be Graph: Trải nghiệm đề xuất</h2>
+    <div class="mermaid">
+      flowchart TD
+        A[User đưa yêu cầu] --> B[Intent Detection]
+        B --> C[Slot Check: location, time range, transaction type, service category]
+        C --> D{Thiếu dữ liệu hoặc confidence thấp?}
+        D -->|Có| E[Clarify 1 câu cụ thể]
+        E --> F[Cập nhật slot còn thiếu]
+        D -->|Không| G[Gọi tool / truy xuất dữ liệu]
+        F --> G
+        G --> H[Validate output: vị trí, thời gian, category, relevance]
+        H --> I{Output đạt chuẩn?}
+        I -->|Có| J[Trả lời + lý do + next action]
+        I -->|Không| K[Nói rõ giới hạn + đề xuất cách tiếp tục]
+        J --> L[User action: lưu voucher / xem chi tiết / đặt ngân sách]
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>10. Product Recommendations</h2>
+    <ol>
+      <li><strong>Location-first search:</strong> mọi intent liên quan “gần tôi” phải check permission, current city hoặc manual location trước khi gọi tool.</li>
+      <li><strong>Conversation state memory:</strong> Moni cần giữ intent gốc khi user bổ sung thông tin ngắn như “Oceanpark 1”.</li>
+      <li><strong>Transaction time-window fallback:</strong> nếu không có dữ liệu trong 3 ngày, tự mở rộng sang 7/30 ngày hoặc tháng gần nhất.</li>
+      <li><strong>Merchant/category confidence:</strong> các khoản như Apple Service cần confidence score; nếu thấp thì hỏi lại thay vì kết luận là khoản nên bỏ.</li>
+      <li><strong>Explainable financial advice:</strong> mọi lời khuyên “nên giảm/bỏ” phải có lý do: tần suất, số tiền, category, mức độ thiết yếu, alternative.</li>
+      <li><strong>Scoped safety response:</strong> guardrail prompt injection nên giữ, nhưng message cần đúng positioning sản phẩm hơn.</li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <h2>11. Success Metrics đề xuất</h2>
+    <table>
+      <tr>
+        <th>Metric</th>
+        <th>Cách đo</th>
+        <th>Mục tiêu</th>
+      </tr>
+      <tr>
+        <td>Location relevance rate</td>
+        <td>% gợi ý địa điểm nằm trong bán kính hợp lý theo vị trí user.</td>
+        <td>&gt; 95%</td>
+      </tr>
+      <tr>
+        <td>Correction recovery rate</td>
+        <td>% case user sửa thông tin và Moni quay lại đúng intent.</td>
+        <td>&gt; 90%</td>
+      </tr>
+      <tr>
+        <td>Transaction analysis coverage</td>
+        <td>% câu hỏi chi tiêu được phân tích đúng phạm vi thời gian.</td>
+        <td>&gt; 90%</td>
+      </tr>
+      <tr>
+        <td>Category precision</td>
+        <td>% giao dịch được phân loại đúng merchant/service.</td>
+        <td>&gt; 85%</td>
+      </tr>
+      <tr>
+        <td>Low-confidence trigger accuracy</td>
+        <td>% tình huống thiếu dữ liệu được Moni hỏi lại thay vì bịa/đoán.</td>
+        <td>&gt; 90%</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>12. Kết luận</h2>
+    <p>
+      Moni có tiềm năng trở thành trợ thủ tài chính cá nhân hữu ích nếu giải quyết được ba vấn đề cốt lõi: grounding theo ngữ cảnh, xử lý correction và phân tích giao dịch đáng tin cậy. Guardrail an toàn hiện hoạt động tốt, nhưng trải nghiệm chính vẫn cần được nâng cấp để người dùng cảm thấy Moni thật sự “hiểu mình”, thay vì chỉ trả lời theo prompt.
+    </p>
+    <p>
+      Product direction nên ưu tiên: <strong>ít trả lời sai hơn, hỏi lại thông minh hơn, và đưa ra lời khuyên tài chính có căn cứ hơn.</strong>
+    </p>
+  </div>
+
+  <div class="footer">
+    Báo cáo dựa trên findings thực nghiệm do người dùng cung cấp và phân tích UX/Product AI.
+  </div>
+
+</div>
+</body>
+</html>

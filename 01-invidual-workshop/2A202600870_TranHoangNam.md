@@ -310,3 +310,9 @@ Correction nên được log lại để cải thiện intent mapping và fallba
 ## 9. Câu SPEC cần thay đổi
 
 Finding này sẽ đổi SPEC của Moni từ “AI trả lời và hướng dẫn bằng text” thành “AI hiểu intent, xác định độ tự tin, ưu tiên action button/deeplink cho task có thể thực thi, dùng low-confidence path khi không chắc, và fallback về dịch vụ trong hệ sinh thái MoMo trước khi gợi ý lựa chọn bên ngoài.”
+
+## 10. Screenshots
+<img width="1170" height="2532" alt="z7896756117804_3878f61159aee0d0946a0ebca0c9e87b" src="https://github.com/user-attachments/assets/c8284b67-a98c-49e9-ae80-ab828e70578a" />
+<img width="1170" height="2532" alt="z7896756134211_599d11b1543f381e5a5992e7ab6e1096" src="https://github.com/user-attachments/assets/64bf6295-af8c-4c2a-bb6c-324008558ef4" />
+<img width="1170" height="2532" alt="z7896756127919_eadbc479bb7f41a2a03e588a2ace9c83" src="https://github.com/user-attachments/assets/4ccb57fd-e18a-4697-89c2-439ff75abc0c" />
+<img width="1170" height="2532" alt="z7896756122687_09a88c8e34be9a0db484ef674620f14f" src="https://github.com/user-attachments/assets/5cabddb1-7455-45f6-a862-8eedc8640699" />

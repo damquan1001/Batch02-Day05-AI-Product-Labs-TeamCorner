@@ -6,72 +6,64 @@ Nộp kèm thin SPEC cuối Day 05.
 
 **Tên nhóm:** Team Corner (Batch02-Day05-AI-Product-Labs-TeamCorner)  
 **Track:** Healthcare — bệnh viện / đặt lịch khám  
-**Product/app đã chọn:** Trợ lý ảo VinmecCare (chat website/app Vinmec, Powered by VinBigdata)  
-**Build slice đang nghĩ:** Từ mô tả triệu chứng → AI gợi ý 2–3 chuyên khoa + user xác nhận → bản tóm tắt trước khi sang form đặt lịch  
+**Product/app đã chọn (tham chiếu):** Trợ lý ảo VinmecCare (Vinmec, VinBigdata)  
+**Build slice Day 06 (đã chốt):** Chatbot **AI agent** — triệu chứng + input không PII → LLM + **mock** (khoa, bác sĩ, cơ sở, slot) → **form pre-fill** (đặt lịch) → user chỉ nhập **thông tin cá nhân** → submit **không qua LLM**  
 
 ## 2. Self-use evidence
 
-Nhóm tự dùng app/workflow và ghi lại điểm gãy.
-
 | Observation | Screenshot/link | Path liên quan | Điều học được |
 |---|---|---|---|
-| User mô tả triệu chứng + "hẹn lịch giúp tôi"; bot hỏi tuổi/năm sinh, chưa map triệu chứng → khoa | `assets/vinmec-chat-01-trien-chung.png` | Happy (một phần) | Bot thu slot cơ bản, không giải quyết intent "chọn khoa" |
-| User trả "2004"; bot hỏi tên cơ sở Vinmec (list dài, free text) | `assets/vinmec-chat-02-tuoi-co-so.png` | Low-confidence | User có thể trả mơ hồ; bot chưa có structured choice cơ sở |
-| User: "Vin ở hà nội"; bot gửi link đặt lịch + hotline, không đặt trong chat | `assets/vinmec-chat-03-link-hotline.png` | Failure / handoff | Handoff mất context triệu chứng; user phải tự hoàn tất trên web |
-| Form [Đăng ký khám](http://vinmec.com/vie/dang-ky-kham/) bắt buộc chọn cơ sở + chuyên khoa (+ bác sĩ, thời gian, OTP) | `assets/vinmec-form-dang-ky-kham.png` | — | Gap: chat thu symptom, web thu structured fields — user tự chọn khoa |
+| User mô tả triệu chứng + hẹn lịch; bot hỏi tuổi, không map → khoa | `assets/vinmec-chat-01-trien-chung.png` | Happy (một phần) | Cần agent + mock specialty |
+| User "2004"; bot hỏi cơ sở free text | `assets/vinmec-chat-02-tuoi-co-so.png` | Low-confidence | Mock facilities + chips thay free text |
+| Bot chỉ link + hotline | `assets/vinmec-chat-03-link-hotline.png` | Failure / handoff | Thay link bằng form pre-fill trong prototype |
+| Form web: cơ sở, khoa, BS, thời gian, rồi PII riêng | `assets/vinmec-form-dang-ky-kham.png` | — | Tách Phase A (LLM) vs Phase B (PII, no LLM) |
 
 ## 3. User / review / social evidence
 
 | Quote / review / observation | Nguồn | User là ai? | Pain/failure mode |
 |---|---|---|---|
-| "Chatbot chỉ gửi link, phải tự điền form dài" | Self-use nhóm (03/06/2026) | Người đặt khám qua web Vinmec | Handoff / abandonment |
-| "Không biết đau bụng nên đi khoa nào" | Prompt thử: đau bụng, táo bón, không đi được | Người lần đầu / ít am hiểu y khoa | Intent → specialty mapping thiếu |
-| "Muốn hẹn nhanh trong chat nhưng phải gọi tổng đài" | Response bot (danh sách hotline) | User gấp / hạn chế di chuyển | Không automation trong chat |
+| "Chatbot chỉ gửi link, phải tự điền form dài" | Self-use (03/06/2026) | Người đặt khám Vinmec | Handoff / abandonment |
+| "Không biết đau bụng đi khoa nào" | Prompt thử nhóm | Người lần đầu | Cần AI gợi ý từ symptom |
+| Lo ngại nhập SĐT/họ tên vào chat AI | Insight nhóm (privacy) | Mọi user | PII chỉ trên form, không LLM |
 
 ```text
-Review App Store/MyVinmec: nhóm bổ sung 2 quote thật trước checkpoint M1 Day 06.
-Giả định bổ sung hiện tại. Nhóm sẽ kiểm bằng tìm review MyVinmec trên store + 1 phỏng vấn nhanh (2 phút) trước M1 Day 06.
+Review store: bổ sung 2 quote trước M1 Day 06.
 ```
 
 ## 4. Competitor / analog evidence
 
-| App / mô hình tham khảo | Họ xử lý task này thế nào? | Pattern học được | Có áp dụng trong 1 ngày không? |
+| App / mô hình | Họ xử lý thế nào? | Pattern cho prototype | 1 ngày? |
 |---|---|---|---|
-| MyVinmec App | Wizard đặt lịch: cơ sở → chuyên khoa → (bác sĩ) → thời gian | Structured flow + chọn từ danh sách | Có — mock UI chọn khoa trong chat |
-| Form web Vinmec | Dropdown bắt buộc chuyên khoa | Biết field bắt buộc prototype phải pre-fill/gợi ý | Có — output summary map sang form |
-| Chatbot y tế triage (analog) | Hỏi thêm + gợi ý khoa + red flag | Low-confidence + escalation | Có — rule + LLM gợi ý 2–3 khoa |
+| Form Vinmec | Dropdown khoa, BS, ngày; PII section riêng | Pre-fill section đặt lịch; PII user tự điền | Có |
+| MyVinmec | Wizard có cấu trúc | Agent = wizard trong chat | Có (mock) |
+| Best practice AI + form | Tách inference vs transactional submit | `bookingDraft` → form, PII bypass LLM | Có |
 
 ## 5. Evidence -> Insight
 
 ```text
-Evidence nổi bật nhất:
-- Chat VinmecCare thu triệu chứng + tuổi + cơ sở rồi chuyển link, không gợi ý chuyên khoa.
-- Form web bắt buộc user tự chọn chuyên khoa/bác sĩ.
-- User trả địa điểm mơ hồ ("Hà Nội") không được làm rõ trước handoff.
+Evidence nổi bật:
+- Chat thật: symptom không thành khoa/BS; chỉ link.
+- Form thật: nhiều field; PII tách section — phù hợp Phase B không LLM.
 
 Insight:
-User đặt khám lần đầu / mô tả bệnh bằng lời không chỉ cần "link đặt lịch".
-Họ cần hỗ trợ quyết định chuyên khoa an toàn, ít bước,
-vì chat và form web không nối được symptom → specialty.
+User cần một luồng: mô tả bệnh → được gợi ý khoa/BS → form gần xong,
+không phải nhập lại từ đầu và không phải đưa SĐT/họ tên vào chat AI.
 
 Opportunity:
-AI có thể augment bằng cách hỏi tối đa 2 câu làm rõ + gợi ý 2–3 chuyên khoa (có lý do ngắn),
-user chọn và xác nhận, rồi mới handoff sang form/link hoặc hotline.
+AI agent + mock catalog trong chat;
+handoff sang form đã fill cơ sở/khoa/BS/lý do khám;
+chỉ PII trên form, submit ngoài LLM.
 ```
 
 ## 6. Evidence đổi SPEC như thế nào?
 
-- [ ] Đổi user chính. (giữ: người lần đầu đặt khám qua chat)
-- [x] Đổi pain statement.
-- [x] Đổi build slice.
-- [x] Đổi Auto/Aug decision.
-- [x] Đổi 4 paths.
-- [x] Đổi failure mode.
-- [x] Đổi owner/test plan.
+- [x] Đổi build slice (từ "chỉ gợi ý khoa" → **agent + pre-fill form + privacy boundary**).
+- [x] Đổi kiến trúc (2 phase: LLM / no-LLM).
+- [x] Đổi deliverable Day 06 (chat + form + mock JSON).
+- [ ] Đổi user chính (giữ nguyên).
 
 ```text
-Trước evidence, nhóm định "cải thiện chatbot đặt lịch Vinmec".
-Sau evidence, nhóm đổi thành "prototype: symptom → gợi ý 2–3 chuyên khoa + xác nhận + summary",
-không build OTP/API đặt lịch thật.
-Lý do: chat hiện chỉ handoff link; task gãy rõ nhất ở chọn khoa; demo được trong 1 ngày.
+Trước: symptom → gợi ý 2–3 khoa → summary → link.
+Sau: symptom → AI agent (mock khoa/BS/slot) → form pre-fill → user PII → submit (no LLM).
+Lý do: giải quyết trọn handoff + giảm rủi ro lộ PII; vẫn demo được 1 ngày với mock.
 ```

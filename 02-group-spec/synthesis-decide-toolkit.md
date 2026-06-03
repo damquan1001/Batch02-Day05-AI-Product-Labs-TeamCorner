@@ -80,58 +80,64 @@ và sẽ test failure path [failure mode].
 
 Những thứ **không build trong Day 06**:
 
-- Tích hợp API đặt lịch Vinmec thật + OTP
-- Chọn bác sĩ + slot giờ trong chat
-- Đa ngôn ngữ / đặt hẹn người nước ngoài
-- Học correction production VinBigdata
+- API đặt lịch Vinmec thật + OTP production
+- VinBigdata / chat production
+- Lưu PII vào vector DB / fine-tune từ transcript
+- Đa ngôn ngữ, bảo hiểm, thanh toán
 
 ---
 
-## Kết quả nhóm Team Corner — Vinmec (đã chốt)
+## Kết quả nhóm Team Corner — Vinmec (đã chốt — cập nhật)
 
 ### Cụm evidence
 
-- Không biết chọn chuyên khoa sau khi mô tả triệu chứng
-- Handoff chat → link web mất context
-- Trả lời cơ sở/địa điểm mơ hồ không được làm rõ
+- Symptom không map được khoa/BS trong chat thật
+- Handoff link — user điền lại form từ đầu
+- Form Vinmec tách field đặt lịch vs thông tin khách hàng → mô hình 2 phase phù hợp
 
 ### Insight
 
 ```text
-User đặt khám lần đầu qua chat VinmecCare không chỉ cần link đặt lịch.
-Họ cần hỗ trợ quyết định chuyên khoa an toàn và ít ma sát,
-vì self-use cho thấy bot không map symptom → specialty trước khi chuyển form web.
+User cần agent đặt lịch từ triệu chứng, không chỉ link.
+Họ cần form gần hoàn tất sau chat và không muốn đưa SĐT/họ tên vào LLM,
+vì chat thật không nối symptom → booking và form thật đã tách PII.
 ```
 
 ### Opportunity
 
 ```text
-Cơ hội là dùng AI để augment: hỏi làm rõ + gợi ý 2–3 chuyên khoa có lý do,
-giúp user chọn khoa trước khi sang form/link,
-trong khi vẫn kiểm soát red flag và gợi ý sai bằng low-confidence + hotline.
+AI agent trong chat: LLM + mock (cơ sở, khoa, bác sĩ, slot) từ triệu chứng + tuổi + khu vực.
+Handoff bookingDraft → form pre-fill (không LLM).
+User chỉ nhập PII trên form và submit — dữ liệu cá nhân không qua prompt.
 ```
 
 ### Build slice — checklist
 
 | Câu hỏi | Đạt? |
 |---|---|
-| User cụ thể? | Có — người lần đầu, mô tả triệu chứng tiếng Việt |
-| Task hẹp? | Có — symptom → gợi ý khoa + confirm (không OTP/API) |
-| AI decision rõ? | Có — rank/gợi ý chuyên khoa + confidence |
-| Failure path? | Có — sai khoa + red flag |
-| Evidence? | Có self-use + form web; review bổ sung sáng Day 06 |
+| User cụ thể? | Có — lần đầu đặt khám, mô tả triệu chứng |
+| Task hẹp? | Có — agent + pre-fill + PII form (mock, 1 ngày) |
+| AI decision rõ? | Có — map symptom → 2–3 khoa; chọn BS/slot từ mock |
+| Failure path? | Có — sai khoa, red flag, PII trong chat bị từ chối |
+| Evidence? | Có screenshot Vinmec + form web |
 
 ### Quyết định scope
 
-**Giữ** domain Vinmec · **Giảm scope** bỏ đặt lịch thật/API · **Augmentation** vì rủi ro y tế.
+**Giữ** pain Vinmec · **Mở rộng có kiểm soát:** chat agent + form (vẫn mock) · **Augmentation + privacy:** LLM không nhận PII · **Submit** ngoài LLM.
+
+### Kiến trúc 2 phase (tóm tắt)
+
+| Phase | Có LLM? | Dữ liệu |
+|-------|---------|---------|
+| A — Chat agent | Có | Triệu chứng, tuổi, cơ sở; mock khoa/BS/slot |
+| B — Form đặt lịch | **Không** | Pre-fill từ `bookingDraft`; user nhập PII; submit mock |
 
 ### Câu chốt cuối
 
 ```text
-Dựa trên screenshot chat + form đăng ký khám Vinmec,
-nhóm sẽ build prototype chat "symptom → gợi ý 2–3 chuyên khoa → xác nhận → summary",
-cho người bệnh lần đầu đặt khám qua chat,
-để giải quyết pain không biết chọn khoa sau handoff link,
-bằng cách AI augment gợi ý chuyên khoa,
-và sẽ test failure path gợi ý khoa sai + red flag đau bụng nặng.
+Dựa trên evidence VinmecCare + form đăng ký khám,
+nhóm sẽ build chatbot AI agent (symptom → gợi ý khoa/BS từ mock data),
+handoff sang form đã fill thông tin đặt lịch,
+user chỉ điền thông tin cá nhân và submit không qua LLM,
+và test red flag + gợi ý khoa sai + từ chối PII trong chat.
 ```

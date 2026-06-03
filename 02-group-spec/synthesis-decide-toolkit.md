@@ -111,7 +111,7 @@ và luồng hiện tại vẫn phụ thuộc vào form/call tư vấn thủ côn
 ```text
 AI agent trong chat: Gemini 3.1 Flash Lite + mock tools
 (cơ sở, khoa, bác sĩ, slot) từ triệu chứng + tuổi + khu vực.
-Handoff bookingDraft/callbackDraft → form pre-fill (không LLM).
+Handoff bookingDraft/callbackDraft → form pre-fill (không LLM), chuyên khoa/slot vẫn editable trước submit.
 User chỉ nhập PII trên form và submit vào mock storage — dữ liệu cá nhân không qua prompt.
 Tab "Lịch đã đặt" cho xem lại ticket và edit thông tin người dùng ngoài LLM.
 Frontend regex chặn SĐT/email/CCCD trước khi tin nhắn bay lên server/LLM.
@@ -123,8 +123,8 @@ Frontend regex chặn SĐT/email/CCCD trước khi tin nhắn bay lên server/LL
 |---|---|
 | User cụ thể? | Có — lần đầu đặt khám, mô tả triệu chứng |
 | Task hẹp? | Có — agent + pre-fill + PII form (mock, 1 ngày) |
-| AI decision rõ? | Có — map symptom → 2–3 khoa; chọn BS/slot từ mock |
-| Failure path? | Có — happy path, user override khoa, escalation hotline/callback, PII trong chat bị chặn |
+| AI decision rõ? | Có — map symptom → 2–3 khoa; user chọn/đổi khoa; lấy BS/slot từ mock |
+| Failure path? | Có — happy path, user override khoa trong chat/form, escalation hotline/callback, PII trong chat bị chặn |
 | Evidence? | Có screenshot Vinmec + form web |
 
 ### Quyết định scope
@@ -138,7 +138,7 @@ Frontend regex chặn SĐT/email/CCCD trước khi tin nhắn bay lên server/LL
 | Tầng 2 — Frontend guard | Không | Regex chặn SĐT/email/CCCD trước server/LLM |
 | Tầng 4 — System prompt | Có | Bỏ qua PII nếu user cố nhập; không nhắc lại |
 | A — Chat agent | Có | Triệu chứng, tuổi, cơ sở; mock khoa/BS/slot |
-| B — Form đặt lịch/callback | **Không** | Pre-fill từ `bookingDraft`; user nhập PII; submit mock; trả ticket ID; tab lịch đã đặt có edit thông tin |
+| B — Form đặt lịch/callback | **Không** | Pre-fill từ `bookingDraft`; user có thể đổi khoa/slot, nhập PII, submit mock, nhận ticket ID; tab lịch đã đặt có edit thông tin |
 
 ### Câu chốt cuối
 
@@ -147,7 +147,7 @@ Dựa trên evidence VinmecCare + form đăng ký khám,
 nhóm sẽ build chatbot AI agent dùng Gemini 3.1 Flash Lite
 (symptom → hỏi thêm → gợi ý khoa/BS/slot từ mock tools),
 handoff sang form đã fill thông tin đặt lịch/callback,
-user chỉ điền thông tin cá nhân và submit không qua LLM,
+user có thể đổi chuyên khoa/slot nếu không ưng rồi điền thông tin cá nhân và submit không qua LLM,
 nhận ticket ID, xem lại và edit thông tin ở tab lịch đã đặt,
 và test happy path + override khoa + escalation + regex chặn PII trong chat.
 ```

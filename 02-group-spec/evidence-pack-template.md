@@ -8,7 +8,7 @@ Nộp kèm thin SPEC cuối Day 05.
 **Track:** Healthcare — bệnh viện / đặt lịch khám  
 **Product/app đã chọn (tham chiếu):** Trợ lý ảo VinmecCare (Vinmec, VinBigdata)  
 **LLM dùng cho prototype:** Gemini 3.1 Flash Lite
-**Build slice Day 06 (đã chốt):** Chatbot **AI agent** — triệu chứng + input không PII → LLM + **mock** (khoa, bác sĩ, cơ sở, slot) → user chọn slot / override khoa → **form pre-fill** (đặt lịch hoặc callback) → user chỉ nhập **thông tin cá nhân** → submit **không qua LLM** → trả ticket ID + tab lịch đã đặt có edit thông tin
+**Build slice Day 06 (đã chốt):** Chatbot **AI agent** — triệu chứng + input không PII → LLM + **mock** (khoa, bác sĩ, cơ sở, slot) → user chọn slot / override khoa trong chat hoặc form → **form pre-fill** (đặt lịch hoặc callback) → user chỉ nhập **thông tin cá nhân** → submit **không qua LLM** → trả ticket ID + tab lịch đã đặt có edit thông tin
 
 | Thành viên | Mã thành viên |
 |---|---|
@@ -63,7 +63,7 @@ không phải nhập lại từ đầu và không phải đưa SĐT/email/CCCD/h
 Opportunity:
 AI agent + mock catalog trong chat;
 tool call gợi ý khoa + lấy lịch trống;
-handoff sang form đã fill cơ sở/khoa/slot/lý do khám;
+handoff sang form đã fill cơ sở/khoa/slot/lý do khám, nhưng vẫn cho user đổi khoa nếu không ưng;
 chỉ PII trên form, submit ngoài LLM, trả ticket ID
 và cho xem/sửa thông tin người dùng ở tab lịch đã đặt.
 ```
@@ -79,7 +79,7 @@ và cho xem/sửa thông tin người dùng ở tab lịch đã đặt.
 
 ```text
 Trước: symptom → gợi ý 2–3 khoa → summary → link/form thủ công.
-Sau: symptom → AI agent (mock khoa/BS/slot) → user chọn/override → form pre-fill
+Sau: symptom → AI agent (mock khoa/BS/slot) → user chọn/override → form pre-fill/editable
 → user PII → submit mock → ticket ID + tab lịch đã đặt + edit thông tin.
 Lý do: giải quyết trọn handoff + giảm rủi ro lộ PII; vẫn demo được 1 ngày với mock.
 ```
